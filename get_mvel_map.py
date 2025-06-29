@@ -89,19 +89,58 @@ def get_mvel_map(map_shape, vmax, alpha, Rturn, checkedPA, i_angle , clean_coord
 
 def calc_chi2(params, vel_map, vel_ivar, map_shape, r_convert, mask_f):
     '''
-    vmax
+    Function
+    ^^^^^^^^
+    Calculate chi-squared value comparing model and observed velocity maps
+    ======================================================================
 
-    alpha
+    Parameters
+    ^^^^^^^^^^
+    params : length-7 list or array
+    model parameters in the following order:
+    
+        vmax : Quantity object
+            maximum velocity (km/s)
 
-    rturn
+        alpha : float
+            sharpness of the galaxy rotation curve
 
-    PA
+        Rturn : float
+            radius where the rotation curve changes from rising to flat
 
-    i_angle
+        PA : float
+            position angle of the galaxy (radians)
 
-    c_coord_i
+        i_angle : float
+            inclination angle of the galaxy (radians)
 
-    c_coord_j
+        clean_coords_i : int
+            i index of the galaxy center in pixels
+
+        clean_coords_j : int
+            j index of the galaxy center in pixels
+
+    vel_map : masked array
+        observed velocity map
+
+    vel_ivar : array
+        inverse variance of the observed velocity values 
+
+    map_shape : length-2 tuple
+        shape of the velocity map (#, #)
+
+    r_convert : float
+        conversion factor from pixels to physical radius (e.g., kpc)
+
+    mask_f : array
+        mask to be applied to the model velocity map
+
+    ======================================================================
+
+    Return
+    ^^^^^^
+    chi2 : float
+        chi-squared value quantifying the fit between model and observed velocities
 
     '''
     model = get_mvel_map(map_shape, params[0],params[1],params[2],params[3], params[4], params[5],params[6], mask_f, r_convert )      
