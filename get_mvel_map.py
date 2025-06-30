@@ -15,7 +15,7 @@ def get_mvel_map(map_shape, vmax, alpha, Rturn, checkedPA, i_angle , clean_coord
     '''
     Function
     ^^^^^^^^
-    Create model velocy map for chosen galaxy
+    Create model velocity map for chosen galaxy
     =========================================
     Parameters
     ^^^^^^^^^^
@@ -70,7 +70,7 @@ def get_mvel_map(map_shape, vmax, alpha, Rturn, checkedPA, i_angle , clean_coord
             # De-projected radius for the current point
             r[i,j], theta[i,j] = deproject_spaxel((i,j), clean_coords, checkedPA, i_angle)
 
-    #convert the r out array 
+    #radius array with deprojected length 
     r_array = r*r_convert
 
     #list of free parameters for calc_v
