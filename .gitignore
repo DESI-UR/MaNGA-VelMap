@@ -1,2 +1,8 @@
 .ipynb_checkpoints/Auto_plotter-checkpoint.ipynb
 /Notebooks/.ipynb_checkpoints
+/.ipynb_checkpoints
+*.jpg
+*.pyc
+*.so
+*.o
+*.c
