@@ -138,7 +138,7 @@ for i in tqdm(good_galaxies[:10], desc = 'Making plots...'):
 
     
         #mhalpha_vel = ma.array(halpha_vel, mask = halpha_gvel_mask)          #masking the halpha array
-        mhalpha_ivar = ma.array (halpha_gvel_ivar, mask = halpha_gvel_mask )  #masking the halpha inverse variance data
+        mhalpha_ivar = ma.array (halpha_gvel_ivar, mask = halpha_mask )  #masking the halpha inverse variance data
         PA = drpall[loc]['nsa_elpetro_phi']                                   #PA is the position angle of chosen galaxy
         ba = drpall[loc]['nsa_elpetro_ba']                                    #ba is the axes ratio of chosen galaxy
         z = drpall[loc]['z']                                                  #z is red-shift value given by sdss 
