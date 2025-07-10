@@ -57,28 +57,22 @@ for filename in os.listdir(good_galaxy_folder):
             
             
 #create new column on table
-drpall['vmax'] = np.ones(len(drpall))*-999
-drpall['alpha'] = np.ones(len(drpall))*-999        
-drpall['Rturn'] = np.ones(len(drpall))*-999        
-drpall['PA'] = np.ones(len(drpall))*-999        
-drpall['i_angle'] = np.ones(len(drpall))*-999
-drpall['center_x'] = np.ones(len(drpall))*-999
-drpall['center_y'] = np.ones(len(drpall))*-999
-drpall['sys_vel'] = np.ones(len(drpall))*-999
-drpall['stellar_vmax'] = np.ones(len(drpall))*-999
-drpall['stellar_alpha'] = np.ones(len(drpall))*-999        
-drpall['stellar_Rturn'] = np.ones(len(drpall))*-999        
-drpall['stellar_PA'] = np.ones(len(drpall))*-999        
-drpall['stellar_i_angle'] = np.ones(len(drpall))*-999
-drpall['stellar_center_x'] = np.ones(len(drpall))*-999
-drpall['stellar_center_y'] = np.ones(len(drpall))*-999
-drpall['stellar_sys_vel'] = np.ones(len(drpall))*-999
+
+custom_columns = [
+    'vmax', 'alpha', 'Rturn', 'PA', 'i_angle', 'center_x', 'center_y', 'sys_vel',
+    'stellar_vmax', 'stellar_alpha', 'stellar_Rturn', 'stellar_PA', 'stellar_i_angle',
+    'stellar_center_x', 'stellar_center_y', 'stellar_sys_vel']
+
+
+for col in custom_columns:
+    if col not in drpall.colnames:
+        drpall[col] = np.ones(len(drpall)) * -999
 
 print('New columns created')
 
 #Make loop
-for i in tqdm(good_galaxies[:10], desc = 'Making plots...'):
-#for i in tqdm((4507,4508), desc = 'Making plots...'):
+for i in tqdm(good_galaxies[:100], desc = 'Making plots...'):
+#for i in tqdm((4809,4810), desc = 'Making plots...'):
     plateifu = drpall['plateifu'][i] 
     loc = drpall_dict[plateifu]
     
@@ -97,7 +91,7 @@ for i in tqdm(good_galaxies[:10], desc = 'Making plots...'):
         if ttype <= 0 or mng <=0:
             continue
             
-            
+        print('PLATEIFU : ',plateifu)
         cube_fn = '/scratch/kdougla7/data/SDSS/dr17/manga/spectro/analysis/v3_1_1/3.1.0/HYB10-MILESHC-MASTARSSP/'+plate1+'/'+plate2+'/manga-'+plateifu+'-MAPS-HYB10-MILESHC-MASTARSSP.fits.gz'
         cube = fits.open(cube_fn)                                           #Opening cube file to import all neccesary data
         stellar_vel = cube['STELLAR_VEL'].data                              
@@ -133,9 +127,11 @@ for i in tqdm(good_galaxies[:10], desc = 'Making plots...'):
         mhalpha_vel = ma.array(halpha_vel, mask=halpha_mask)                                                     #the addition of masks on low strength points
         
         #percent spaxel cut
-        if (mhalpha_vel.count()/mhalpha_vel.size)*100<5:                                                         #cut based on percent of usable data points
+        if (mhalpha_vel.count()/mhalpha_vel.size)*100<5:
+            print('not enough data')
             continue
-
+        
+        print('percent of spaxels available : ',(mhalpha_vel.count()/mhalpha_vel.size)*100)
     
         #mhalpha_vel = ma.array(halpha_vel, mask = halpha_gvel_mask)          #masking the halpha array
         mhalpha_ivar = ma.array (halpha_gvel_ivar, mask = halpha_mask )  #masking the halpha inverse variance data
@@ -500,7 +496,11 @@ for i in tqdm(good_galaxies[:10], desc = 'Making plots...'):
         
         #percent spaxel cut
         if (mstellar_vel.count()/mstellar_vel.size)*100<5:                         #same cut based on usable data points
+            print('not enough data')
             continue
+                    
+        print('percent of stellar spaxels available : ',(mhalpha_vel.count()/mhalpha_vel.size)*100)
+                
         
         
         
