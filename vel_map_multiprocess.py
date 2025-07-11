@@ -45,8 +45,8 @@ q0 = 0.2
 c = const.c.to('km/s')
 
 
-import sys
-sys.path.insert(1, ) # CHANGE PATH AS NECESSARY
+#import sys
+#sys.path.insert(1, ) # CHANGE PATH AS NECESSARY
 from mapSmoothness_functions import how_smooth
 
 #warnings.simplefilter('ignore', np.RankWarning)
@@ -949,7 +949,7 @@ while num_processed < num_tasks:
     num_processed += 1
 
     if num_processed % 5 == 0:
-        drpall.write(TABLE_NAME.FITS, 
+        drpall.write(data_folder +'drpall_ttype_R90_chi2_halpha&stellar.fits',
                 format='fits', overwrite=True)
         print('Table written ', num_processed, flush=True)
     
@@ -961,7 +961,7 @@ print('Finished populating output table', datetime.datetime.now(), flush=True)
 for p in processes:
     p.join(None)
 
-drpall.write(TABLE_NAME.FITS, 
+drpall.write(data_folder +'drpall_ttype_R90_chi2_halpha&stellar.fits',
                 format='fits', overwrite=True)
 print('Table written', flush=True)
 
