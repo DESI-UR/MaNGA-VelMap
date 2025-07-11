@@ -71,8 +71,8 @@ for col in custom_columns:
 print('New columns created')
 
 #Make loop
-for i in tqdm(good_galaxies[:100], desc = 'Making plots...'):
-#for i in tqdm((4809,4810), desc = 'Making plots...'):
+#for i in tqdm(good_galaxies[:100], desc = 'Making plots...'):
+for i in tqdm((1814,1815), desc = 'Making plots...'):
     plateifu = drpall['plateifu'][i] 
     loc = drpall_dict[plateifu]
     
@@ -499,7 +499,7 @@ for i in tqdm(good_galaxies[:100], desc = 'Making plots...'):
             print('not enough data')
             continue
                     
-        print('percent of stellar spaxels available : ',(mhalpha_vel.count()/mhalpha_vel.size)*100)
+        print('percent of stellar spaxels available : ',(mstellar_vel.count()/mstellar_vel.size)*100)
                 
         
         
@@ -797,7 +797,7 @@ for i in tqdm(good_galaxies[:100], desc = 'Making plots...'):
         
         drpall.write(data_folder + 'drpall_ttype_R90_chi2.fits', format='fits',overwrite=True)
         
-        
+        print('vmax_ideal_s ',vmax_ideal_s)
         
         
         
