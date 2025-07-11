@@ -45,8 +45,8 @@ q0 = 0.2
 c = const.c.to('km/s')
 
 
-#import sys
-#sys.path.insert(1, ) # CHANGE PATH AS NECESSARY
+import sys
+sys.path.insert(1, '/home/ebenitez/Documents/' ) # CHANGE PATH AS NECESSARY
 from mapSmoothness_functions import how_smooth
 
 #warnings.simplefilter('ignore', np.RankWarning)
@@ -125,9 +125,9 @@ def process_1_galaxy(job_queue, i,
 
         if ttype <= 0 or mng <=0:
             output_tuple = (None, None, None, None, 
-                            None, None, None, None, None, 
+                            None, None, None, None, None, None,
                             None, None, None, 
-                            None, None, None, None, None, loc)
+                            None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
             continue
             
@@ -158,9 +158,9 @@ def process_1_galaxy(job_queue, i,
         except:
             print('Could not extract data for ', plate, flush=True)
             output_tuple = (None, None, None, None, 
-                            None, None, None, None, None, 
+                            None, None, None, None, None, None,
                             None, None, None, 
-                            None, None, None, None, None, loc)
+                            None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
             continue     
         
@@ -179,9 +179,9 @@ def process_1_galaxy(job_queue, i,
 
             print(plate, ' not smooth enough to fit', flush=True)
             output_tuple = (map_smoothness, None, None, None, 
-                            None, None, None, None, None, 
+                            None, None, None, None, None, None,
                             None, None, None, 
-                            None, None, None, None, None, loc)
+                            None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
             continue
         
@@ -196,9 +196,9 @@ def process_1_galaxy(job_queue, i,
         if (mhalpha_vel.count()/mhalpha_vel.size)*100<5:
             print(plate, ' not enough data to fit', flush=True)
             output_tuple = (map_smoothness, None, None, None, 
-                            None, None, None, None, None, 
+                            None, None, None, None, None, None,
                             None, None, None, 
-                            None, None, None, None, None, loc)
+                            None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
             continue
 
@@ -309,9 +309,9 @@ def process_1_galaxy(job_queue, i,
             print(plate, 'CRASHED! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', 
                             flush=True)
             output_tuple = (map_smoothness, None, None, None, 
-                            None, None, None, None, None, 
+                            None, None, None, None, None, None,
                             None, None, None, 
-                            None, None, None, None, None, loc)
+                            None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
             continue
                         
@@ -323,9 +323,9 @@ def process_1_galaxy(job_queue, i,
         if result.success == False:
             print(plate, ' fit failed', flush=True)
             output_tuple = (map_smoothness, None, None, None, 
-                            None, None, None, None, None, 
+                            None, None, None, None, None, None,
                             None, None, None, 
-                            None, None, None, None, None, loc)
+                            None, None, None, None, None, None, loc)
             return_queue.out(output_tuple)
             continue
 
@@ -355,6 +355,7 @@ def process_1_galaxy(job_queue, i,
         x_cent_ideal = result.x[5]
         y_cent_ideal = result.x[6]
         sys_vel_ideal = result.x[7]
+        chi2_nu = result.fun / (mhalpha_vel.count() - 8)
 
         ########################################################################
         # Make H-alpha plots
@@ -504,9 +505,9 @@ def process_1_galaxy(job_queue, i,
         if (mstellar_vel.count()/mstellar_vel.size)*100<5:                         #same cut based on usable data points
             print(plate, ' not enough data for stellar fit', flush=True)
             output_tuple = (map_smoothness, vmax_ideal, alpha_ideal, Rturn_ideal, 
-                        PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, 
+                        PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, chi2_nu,
                         None, None, None, 
-                        None, None, None, None, None, loc)
+                        None, None, None, None, None, None loc)
             return_queue.out(output_tuple)
             continue
             
@@ -591,9 +592,9 @@ def process_1_galaxy(job_queue, i,
             print(plate, 'CRASHED! <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<', 
                             flush=True)
             output_tuple = (map_smoothness, vmax_ideal, alpha_ideal, Rturn_ideal, 
-                PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, 
+                PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, chi2_nu,
                 None, None, None, 
-                None, None, None, None, None, loc)
+                None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
             continue
 
@@ -603,9 +604,9 @@ def process_1_galaxy(job_queue, i,
         if result.success == False:
             print(plate, ' stellar fit failed', flush=True)
             output_tuple = (map_smoothness, vmax_ideal, alpha_ideal, Rturn_ideal, 
-                        PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, 
+                        PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, chi2_nu,
                         None, None, None, 
-                        None, None, None, None, None, loc)
+                        None, None, None, None, None, None, loc)
             return_queue.out(output_tuple)
             continue
 
@@ -635,6 +636,9 @@ def process_1_galaxy(job_queue, i,
         x_cent_ideal_s = result.x[5]
         y_cent_ideal_s = result.x[6]
         sys_vel_ideal_s = result.x[7]
+
+        chi2_nu_s = result.fun / (mstellar_vel.count() - 8)
+        
 
         ########################################################################
         # Stellar velocity plots
@@ -768,9 +772,9 @@ def process_1_galaxy(job_queue, i,
         print('\n', flush=True)
 
         output_tuple = (map_smoothness, vmax_ideal, alpha_ideal, Rturn_ideal, 
-                        PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, 
+                        PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, chi2_nu,
                         vmax_ideal_s, alpha_ideal_s, Rturn_ideal_s, 
-                        PA_ideal_s, i_angle_ideal_s, x_cent_ideal_s, y_cent_ideal_s, sys_vel_ideal_s, 
+                        PA_ideal_s, i_angle_ideal_s, x_cent_ideal_s, y_cent_ideal_s, sys_vel_ideal_s, chi2_nu_s,
                         loc)
     
         return_queue.put(output_tuple)
@@ -816,9 +820,9 @@ for filename in os.listdir(good_galaxy_folder):
 #create new column on table
 
 custom_columns = ['smoothness_score',
-    'vmax', 'alpha', 'Rturn', 'PA', 'i_angle', 'center_x', 'center_y', 'sys_vel',
+    'vmax', 'alpha', 'Rturn', 'PA', 'i_angle', 'center_x', 'center_y', 'sys_vel', 'chi_nu',
     'stellar_vmax', 'stellar_alpha', 'stellar_Rturn', 'stellar_PA', 'stellar_i_angle',
-    'stellar_center_x', 'stellar_center_y', 'stellar_sys_vel']
+    'stellar_center_x', 'stellar_center_y', 'stellar_chi_nu', 'stellar_sys_vel']
 
 
 for col in custom_columns:
@@ -890,22 +894,21 @@ while num_processed < num_tasks:
     y_cent_ideal = return_tuple[7] 
     sys_vel_ideal = return_tuple[8] 
 
-    vmax_ideal_s = return_tuple[9]
-    alpha_ideal_s = return_tuple[10] 
-    Rturn_ideal_s = return_tuple[11]
+    chi_nu = return_tuple[9]
 
-    PA_ideal_s = return_tuple[12] 
-    i_angle_ideal_s = return_tuple[13] 
-    x_cent_ideal_s = return_tuple[14] 
-    y_cent_ideal_s = return_tuple[15] 
-    sys_vel_ideal_s = return_tuple[16] 
+    vmax_ideal_s = return_tuple[10]
+    alpha_ideal_s = return_tuple[11] 
+    Rturn_ideal_s = return_tuple[12]
 
-    loc = return_tuple[17]
+    PA_ideal_s = return_tuple[13] 
+    i_angle_ideal_s = return_tuple[14] 
+    x_cent_ideal_s = return_tuple[15] 
+    y_cent_ideal_s = return_tuple[16] 
+    sys_vel_ideal_s = return_tuple[17] 
 
-    'vmax', 'alpha', 'Rturn', 'PA', 'i_angle', 'center_x', 'center_y', 'sys_vel',
-    'stellar_vmax', 'stellar_alpha', 'stellar_Rturn', 'stellar_PA', 'stellar_i_angle',
-    'stellar_center_x', 'stellar_center_y', 'stellar_sys_vel'
-    
+    chi_nu_s = return_tuple[18]
+
+    loc = return_tuple[19]
 
 
     if map_smoothness is not None:
@@ -925,6 +928,8 @@ while num_processed < num_tasks:
         drpall['center_x'][loc] = x_cent_ideal
         drpall['center_y'][loc] = y_cent_ideal
 
+        drpall['chi_nu'][loc] = chi_nu
+
         drpall['sys_vel'][loc] = sys_vel_ideal
 
 
@@ -939,6 +944,8 @@ while num_processed < num_tasks:
         drpall['stellar_i_angle'][loc] = i_angle_ideal_s
         drpall['stellar_center_x'][loc] = x_cent_ideal_s
         drpall['stellar_center_y'][loc] = y_cent_ideal_s
+
+        drpall['stellar_chi_nu'][loc] = chi_nu_s
 
         drpall['stellar_sys_vel'][loc] = sys_vel_ideal_s
 
