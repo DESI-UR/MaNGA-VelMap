@@ -268,12 +268,23 @@ def process_1_galaxy(job_queue, i,
 
         theta = np.radians(PA-90)   #theta is PA reoriented to the positive x axis for calculations
         checkedPA = np.radians(PA)
+        f = 20
+
         try: 
             for x in range(int(clean_coords[0]/2),clean_coords[0]):   
                 if x < 0 or x >= mhalpha_vel.shape[0]:
                     continue
                 
                 y = clean_coords[1] - round((clean_coords[0] - x) * np.tan(theta)) #y's are found based on the slope given by PA
+
+                if PA < 15 and PA > 0: # if position angle is near 0
+                    x = clean_coords[0]
+                    y = clean_coords[1] - f
+                    while y < 0 or ma.is_masked(mhalpha_vel[x,y]):
+                        f -= 1
+                        y = clean_coords[1] - f
+
+
                 if y < 0 or y >= mhalpha_vel.shape[1]:
                     continue
                     
@@ -558,23 +569,59 @@ def process_1_galaxy(job_queue, i,
             
         map_shape_s = mstellar_vel.shape
 
-        theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
-        for x in range(15,clean_coords[0]):       
-            if x < 0 or x >= mstellar_vel.shape[0]:
-                continue
+        # theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
+        # for x in range(15,clean_coords[0]):       
+        #     if x < 0 or x >= mstellar_vel.shape[0]:
+        #         continue
             
-            y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
-            if y < 0 or y >= mstellar_vel.shape[1]:
-                continue
+        #     y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
+        #     if y < 0 or y >= mstellar_vel.shape[1]:
+        #         continue
                 
-            if ma.is_masked(mstellar_vel[x, y]):
-                continue
-            break
+        #     if ma.is_masked(mstellar_vel[x, y]):
+        #         continue
+        #     break
             
-        if (mstellar_vel[x,y]<0):         # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
-            checkedPA_s = (PA + 180) *(np.pi/180)
-        else:
-            checkedPA_s = PA*(np.pi/180)
+        # if (mstellar_vel[x,y]<0):         # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
+        #     checkedPA_s = (PA + 180) *(np.pi/180)
+        # else:
+        #     checkedPA_s = PA*(np.pi/180)
+
+
+        theta = np.radians(PA-90)   #theta is PA reoriented to the positive x axis for calculations
+        checkedPA = np.radians(PA)
+        f = 20
+        
+        try: 
+            for x in range(int(clean_coords[0]/2),clean_coords[0]):   
+                if x < 0 or x >= mstellar_vel.shape[0]:
+                    continue
+                
+                y = clean_coords[1] - round((clean_coords[0] - x) * np.tan(theta)) #y's are found based on the slope given by PA
+
+                if PA < 15 and PA > 0: # if position angle is near 0
+                    x = clean_coords[0]
+                    y = clean_coords[1] - f
+                    while y < 0 or ma.is_masked(mstellar_vel[x,y]):
+                        f -= 1
+                        y = clean_coords[1] - f
+
+
+                if y < 0 or y >= mstellar_vel.shape[1]:
+                    continue
+                    
+                if ma.is_masked(mstellar_vel[x, y]):
+                    continue
+                
+                else:
+                    if (mstellar_vel[x,y]<0):
+                        checkedPA = (PA + 180) *(np.pi/180)
+                    else:
+                        checkedPA = PA*(np.pi/180)
+                    break
+
+        except:
+            print('couldnt check PA, using NSA value', flush=True)
 
         ########################################################################
         # Parameter guesses and bounds
