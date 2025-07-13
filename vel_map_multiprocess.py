@@ -120,7 +120,12 @@ def process_1_galaxy(job_queue, i,
         # Check if gal already ran
         #-----------------------------------------------------------------------
 
-        if drpall['smoothness_score'][loc] >=0:
+        refit = ['10516-1902', '9044-9101', '9187-12702', '8239-1901',
+                 '8595-3704', '8444-9101', '8727-12702', '8453-6101',
+                 '11834-12701','8259-12704',  '8999-1901', '8549-1901'
+                 ]
+
+        if drpall['smoothness_score'][loc] >=0 and plateifu not in refit:
             output_tuple = (None, None, None, None, 
                             None, None, None, None, None, None,
                             None, None, None, 
@@ -280,7 +285,8 @@ def process_1_galaxy(job_queue, i,
                         checkedPA = (PA + 180) *(np.pi/180)
                     else:
                         checkedPA = PA*(np.pi/180)
-                    break`
+                    break
+
         except:
             print('couldnt check PA, using NSA value', flush=True)
 
