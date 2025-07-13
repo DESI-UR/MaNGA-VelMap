@@ -117,6 +117,20 @@ def process_1_galaxy(job_queue, i,
         plate2=plate[1]
 
         ########################################################################
+        # Check if gal already ran
+        #-----------------------------------------------------------------------
+
+        if drpall['smoothness_score'][loc] >=0:
+            output_tuple = (None, None, None, None, 
+                            None, None, None, None, None, None,
+                            None, None, None, 
+                            None, None, None, None, None, None, loc)
+            return_queue.put(output_tuple)
+            print(plate, ' already processed', flush=True)
+            continue
+
+
+        ########################################################################
         # Check galaxy target
         #-----------------------------------------------------------------------
  
@@ -210,8 +224,8 @@ def process_1_galaxy(job_queue, i,
         ba = drpall[loc]['nsa_elpetro_ba']                                    #ba is the axes ratio of chosen galaxy
         z = drpall[loc]['z']                                                  #z is red-shift value given by sdss 
         mask_f = halpha_mask
-        x = -spx_x                                                            #x and y are spaxel distance from the center of the galaxy
-        y = spx_y
+        # x = -spx_x                                                            #x and y are spaxel distance from the center of the galaxy
+        # y = spx_y
             
         
         gal_distance = (c*z)/H_0
@@ -227,24 +241,48 @@ def process_1_galaxy(job_queue, i,
         
         # sys_vel = mhalpha_vel[tuple(clean_coords)]*u.km/u.s 
 
-        theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
-        for x in range(15,clean_coords[0]):       #goes 15 left to 15 right
-            if x < 0 or x >= mhalpha_vel.shape[0]:
-                continue
+        # theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
+        # for x in range(15,clean_coords[0]):       #goes 15 left to 15 right
+        #     if x < 0 or x >= mhalpha_vel.shape[0]:
+        #         continue
             
-            y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
-            if y < 0 or y >= mhalpha_vel.shape[1]:
-                continue
+        #     y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
+        #     if y < 0 or y >= mhalpha_vel.shape[1]:
+        #         continue
                 
-            if ma.is_masked(mhalpha_vel[x, y]):
-                continue
-            break
+        #     if ma.is_masked(mhalpha_vel[x, y]):
+        #         continue
+        #     break
             
             
-        if (mhalpha_vel[x,y]<0):                        # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
-            checkedPA = (PA + 180) *(np.pi/180)
-        else:
-            checkedPA = PA*(np.pi/180)
+        # if (mhalpha_vel[x,y]<0):                        # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
+        #     checkedPA = (PA + 180) *(np.pi/180)
+        # else:
+        #     checkedPA = PA*(np.pi/180)
+
+
+        theta = np.radians(PA-90)   #theta is PA reoriented to the positive x axis for calculations
+        checkedPA = np.radians(PA)
+        try: 
+            for x in range(int(clean_coords[0]/2),clean_coords[0]):   
+                if x < 0 or x >= mhalpha_vel.shape[0]:
+                    continue
+                
+                y = clean_coords[1] - round((clean_coords[0] - x) * np.tan(theta)) #y's are found based on the slope given by PA
+                if y < 0 or y >= mhalpha_vel.shape[1]:
+                    continue
+                    
+                if ma.is_masked(mhalpha_vel[x, y]):
+                    continue
+                
+                else:
+                    if (mhalpha_vel[x,y]<0):
+                        checkedPA = (PA + 180) *(np.pi/180)
+                    else:
+                        checkedPA = PA*(np.pi/180)
+                    break`
+        except:
+            print('couldnt check PA, using NSA value', flush=True)
 
 
         ########################################################################
@@ -635,7 +673,7 @@ def process_1_galaxy(job_queue, i,
         sys_vel_ideal_s = result.x[7]
 
         chi2_nu_s = result.fun / (mstellar_vel.count() - 8)
-        print('stellar map chi2_nu', chi2_nu, flush=True)
+        print('stellar map chi2_nu', chi2_nu_s, flush=True)
         
 
         ########################################################################
@@ -790,7 +828,7 @@ return_queue = Queue()
 data_folder = "/scratch/ebenitez/"                  #create a variable for directory to common folder
 
 
-drpall_fn = data_folder + "drpall_ttype_R90_chi2.fits"
+drpall_fn = data_folder + "drpall_ttype_R90_chi2_halpha_stellar.fits"
 drpall = Table.read(drpall_fn, format="fits",hdu=1)
 
 
@@ -954,7 +992,7 @@ while num_processed < num_tasks:
     num_processed += 1
 
     if num_processed % 5 == 0:
-        drpall.write(data_folder +'drpall_ttype_R90_chi2_halpha&stellar.fits',
+        drpall.write(data_folder +'drpall_ttype_R90_chi2_halpha_stellar_run2.fits',
                 format='fits', overwrite=True)
         print('Table written ', num_processed, flush=True)
     
@@ -966,7 +1004,7 @@ print('Finished populating output table', datetime.datetime.now(), flush=True)
 for p in processes:
     p.join(None)
 
-drpall.write(data_folder +'drpall_ttype_R90_chi2_halpha&stellar.fits',
+drpall.write(data_folder +'drpall_ttype_R90_chi2_halpha_stellar_run2.fits',
                 format='fits', overwrite=True)
 print('Table written', flush=True)
 
