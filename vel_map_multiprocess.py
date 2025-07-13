@@ -120,8 +120,8 @@ def process_1_galaxy(job_queue, i,
         # Check galaxy target
         #-----------------------------------------------------------------------
  
-        ttype = drpall['TType'][i]
-        mng = drpall['mngtarg1'][i]
+        ttype = drpall['TType'][loc]
+        mng = drpall['mngtarg1'][loc]
 
         if ttype <= 0 or mng <=0:
             output_tuple = (None, None, None, None, 
@@ -129,6 +129,7 @@ def process_1_galaxy(job_queue, i,
                             None, None, None, 
                             None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
+            print(plate, ' wrong t-type or target type', flush=True)
             continue
             
         print('PLATEIFU : ',plateifu)
@@ -184,6 +185,8 @@ def process_1_galaxy(job_queue, i,
                             None, None, None, None, None, None, loc)
             return_queue.put(output_tuple)
             continue
+            
+        print("smoothness score: ", map_smoothness, flush=True)
         
         ########################################################################
         # Maps and photometry 
@@ -225,21 +228,18 @@ def process_1_galaxy(job_queue, i,
         # sys_vel = mhalpha_vel[tuple(clean_coords)]*u.km/u.s 
 
         theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
-        for x in range(15,clean_coords[0]):       
-            if ma.is_masked(clean_coords[0] + x):
+        for x in range(15,clean_coords[0]):       #goes 15 left to 15 right
+            if x < 0 or x >= mhalpha_vel.shape[0]:
                 continue
-            else:
-                y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
-                if ma.is_masked(mhalpha_vel[x, y]):
-                    continue
+            
+            y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
+            if y < 0 or y >= mhalpha_vel.shape[1]:
+                continue
                 
-                else:
-                    '''                                       #creates the points on the map to be checked for velocity
-                    v_checkx = 31-x
-                    v_checky = 31-y
-                    print(v_checkx,v_checky)
-                    '''
-                    break
+            if ma.is_masked(mhalpha_vel[x, y]):
+                continue
+            break
+            
             
         if (mhalpha_vel[x,y]<0):                        # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
             checkedPA = (PA + 180) *(np.pi/180)
@@ -326,7 +326,7 @@ def process_1_galaxy(job_queue, i,
                             None, None, None, None, None, None,
                             None, None, None, 
                             None, None, None, None, None, None, loc)
-            return_queue.out(output_tuple)
+            return_queue.put(output_tuple)
             continue
 
         ########################################################################
@@ -356,6 +356,7 @@ def process_1_galaxy(job_queue, i,
         y_cent_ideal = result.x[6]
         sys_vel_ideal = result.x[7]
         chi2_nu = result.fun / (mhalpha_vel.count() - 8)
+        print('H alpha map chi2_nu', chi2_nu, flush=True)
 
         ########################################################################
         # Make H-alpha plots
@@ -507,28 +508,24 @@ def process_1_galaxy(job_queue, i,
             output_tuple = (map_smoothness, vmax_ideal, alpha_ideal, Rturn_ideal, 
                         PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, chi2_nu,
                         None, None, None, 
-                        None, None, None, None, None, None loc)
-            return_queue.out(output_tuple)
+                        None, None, None, None, None, None, loc)
+            return_queue.put(output_tuple)
             continue
             
         map_shape_s = mstellar_vel.shape
 
         theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
         for x in range(15,clean_coords[0]):       
-            if ma.is_masked(clean_coords[0] + x):
+            if x < 0 or x >= mstellar_vel.shape[0]:
                 continue
-            else:
-                y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
-                if ma.is_masked(mstellar_vel[x, y]):
-                    continue
+            
+            y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
+            if y < 0 or y >= mstellar_vel.shape[1]:
+                continue
                 
-                else:
-                    '''                                       #creates the points on the map to be checked for velocity
-                    v_checkx = 31-x
-                    v_checky = 31-y
-                    print(v_checkx,v_checky)
-                    '''
-                    break
+            if ma.is_masked(mstellar_vel[x, y]):
+                continue
+            break
             
         if (mstellar_vel[x,y]<0):         # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
             checkedPA_s = (PA + 180) *(np.pi/180)
@@ -607,7 +604,7 @@ def process_1_galaxy(job_queue, i,
                         PA_ideal, i_angle_ideal, x_cent_ideal, y_cent_ideal, sys_vel_ideal, chi2_nu,
                         None, None, None, 
                         None, None, None, None, None, None, loc)
-            return_queue.out(output_tuple)
+            return_queue.put(output_tuple)
             continue
 
         ########################################################################
@@ -638,6 +635,7 @@ def process_1_galaxy(job_queue, i,
         sys_vel_ideal_s = result.x[7]
 
         chi2_nu_s = result.fun / (mstellar_vel.count() - 8)
+        print('stellar map chi2_nu', chi2_nu, flush=True)
         
 
         ########################################################################
