@@ -72,7 +72,7 @@ print('New columns created')
 
 #Make loop
 #for i in tqdm(good_galaxies[:100], desc = 'Making plots...'):
-for i in tqdm((1814,1815), desc = 'Making plots...'):
+for i in tqdm((5424,5425), desc = 'Making plots...'):
     plateifu = drpall['plateifu'][i] 
     loc = drpall_dict[plateifu]
     
@@ -168,24 +168,24 @@ for i in tqdm((1814,1815), desc = 'Making plots...'):
       
         
     
-        #check PA        
+        #check PA 
+        
+
         theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
-        for x in range(15,clean_coords[0]):       
-            if ma.is_masked(clean_coords[0] + x):
+        for x in range(15,clean_coords[0]+15):       #goes 15 left to 15 right
+            if x < 0 or x >= mhalpha_vel.shape[0]:
                 continue
-            else:
-                y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
-                if ma.is_masked(mhalpha_vel[x, y]):
-                    continue
-                
-                else:
-                    '''                                       #creates the points on the map to be checked for velocity
-                    v_checkx = 31-x
-                    v_checky = 31-y
-                    print(v_checkx,v_checky)
-                    '''
-                    break
             
+            y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
+            if y < 0 or y >= mhalpha_vel.shape[1]:
+                continue
+                
+            if ma.is_masked(mhalpha_vel[x, y]):
+                continue
+            break
+    
+    
+    
         if (mhalpha_vel[x,y]<0):                        # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
             checkedPA = (PA + 180) *(np.pi/180)
         else:
@@ -523,24 +523,28 @@ for i in tqdm((1814,1815), desc = 'Making plots...'):
       
         
     
-        #check PA        
-        theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
-        for x in range(15,clean_coords[0]):       
-            if ma.is_masked(clean_coords[0] + x):
-                continue
-            else:
-                y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
-                if ma.is_masked(mstellar_vel[x, y]):
-                    continue
-                
-                else:
-                    '''                                       #creates the points on the map to be checked for velocity
-                    v_checkx = 31-x
-                    v_checky = 31-y
-                    print(v_checkx,v_checky)
-                    '''
-                    break
+        #check PA    
             
+
+        theta = np.radians(PA-90)                      #theta is PA reoriented to the positive x axis for calculations
+        for x in range(15,clean_coords[0]+15):       
+            if x < 0 or x >= mstellar_vel.shape[0]:
+                continue
+            
+            y = clean_coords[1]- round((clean_coords[0]-x) * np.tan(theta))               #y's are found based on the slope given by PA
+            if y < 0 or y >= mstellar_vel.shape[1]:
+                continue
+                
+            if ma.is_masked(mstellar_vel[x, y]):
+                continue
+            break
+        
+        
+            
+            
+            
+            
+        
         if (mstellar_vel[x,y]<0):         # if velocity comes back negative the position angle will be flipped 180 deg, otherwise left alone
             checkedPA_s = (PA + 180) *(np.pi/180)
         else:
